@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Url Shorter</title>
+    <link href="./css/primer.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="./imgs/favicon.ico" />
+</head>
+
+<body>
+    <div class="Layout  mt-3" style="width: 100%; display: flex; justify-content: center;">
+        <div class="col-5">
+            <div class="Box color-shadow-small">
+                <div class="Box-row">
+                    <h3 class="m-0">短链生成器</h3>
+                </div>
+                <div class="Box-row">
+                    <textarea class="form-control" style="width: 100%;" id="long-url-textarea"></textarea>
+                </div>
+                <div class="Box-row" id="alert-message">
+                    <div class="flash flash-success" id="flash-text">
+                        <a id="short-url-link"></a>
+                        <button class="btn btn-sm flash-action" id="copy-button">复制到剪切板</button>
+                    </div>
+                </div>
+                <div class="Box-row">
+                    <button type="button" id="create-button" name="Create a short url"
+                        class="btn btn-primary btn-block">
+                        生成一个短链
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const longUrlTextarea = document.getElementById('long-url-textarea');
+        const createButton = document.getElementById('create-button');
+        const alertMessage = document.getElementById('alert-message');
+        const flashText = document.getElementById('flash-text');
+        const copyButton = document.getElementById('copy-button');
+        const shortUrlLink = document.getElementById('short-url-link');
+
+        // hide the alert message
+        alertMessage.style.display = 'none';
+        createButton.addEventListener('click', function () {
+            const textareaValue = longUrlTextarea.value;
+            if (textareaValue === '' || (!textareaValue.startsWith('http') && !textareaValue.startsWith('https'))) {
+                alertMessage.style.display = 'block';
+                // change the flash-text content from success to error
+                flashText.className = 'flash flash-error';
+                flashText.firstChild.data = "请输入一个有效的链接";
+                copyButton.style.display = 'none';
+                shortUrlLink.style.display = 'none';
+            }
+            else {
+                // send a post request to the server
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/urlShorter', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({
+                    url: textareaValue
+                }));
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        const shortUrl = xhr.responseText;
+                        // change the flash-text content from error to success
+                        alertMessage.style.display = 'block';
+                        flashText.className = 'flash flash-success';
+                        flashText.firstChild.data = "";
+                        shortUrlLink.style.display = 'inline-block';
+                        shortUrlLink.href = new URL(shortUrl, window.location.href).href;
+                        shortUrlLink.textContent = new URL(shortUrl, window.location.href).href;
+                        copyButton.style.display = 'inline-block';
+                    }
+                    else {
+                        alertMessage.style.display = 'block';
+                        // change the flash-text content from success to error
+                        flashText.className = 'flash flash-error';
+                        flashText.firstChild.data = xhr.responseText;
+                        copyButton.style.display = 'none';
+                        shortUrlLink.style.display = 'none';
+                    }
+                }
+            }
+        });
+
+        copyButton.addEventListener('click', function () {
+            // copy the content of flash-text to clipboard
+            const range = document.createRange();
+            range.selectNode(flashText);
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) selection.removeAllRanges();
+            selection.addRange(range);
+            document.execCommand('copy');
+            selection.removeAllRanges();
+        });
+    </script>
+</body>
+
+</html>

@@ -17,6 +17,8 @@ builder.Services.AddHostedService<TimedCheckpointService>();
 
 var app = builder.Build();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
 // Configure the HTTP request pipeline.
 app.MapControllers();
 

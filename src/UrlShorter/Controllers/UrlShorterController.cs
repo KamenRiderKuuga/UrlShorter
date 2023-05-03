@@ -28,7 +28,7 @@ namespace UrlShorter.Controllers
         [HttpPost("[controller]")]
         public async Task<IActionResult> Generate([FromBody] UrlDto urlGenerateDto)
         {
-            if (urlGenerateDto.Url?.Length < 10240)
+            if (urlGenerateDto.Url?.Length < 10240 && (urlGenerateDto.Url.StartsWith("http://") || urlGenerateDto.Url.StartsWith("https://")))
             {
                 using var session = _store.For(new SimpleFunctions<long, string>()).NewSession<SimpleFunctions<long, string>>();
                 {
