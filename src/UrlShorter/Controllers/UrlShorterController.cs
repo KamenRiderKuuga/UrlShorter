@@ -1,6 +1,7 @@
 using FASTER.core;
 using Microsoft.AspNetCore.Mvc;
 using Standart.Hash.xxHash;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 using UrlShorter.Models;
@@ -74,7 +75,7 @@ namespace UrlShorter.Controllers
                     if (!status.NotFound)
                     {
                         var urlDto = JsonSerializer.Deserialize<UrlDto>(output);
-                        return Redirect(urlDto.Url);
+                        return Redirect(new Uri(urlDto.Url).GetComponents(UriComponents.SerializationInfoString, UriFormat.UriEscaped));
                     }
                 }
             }
